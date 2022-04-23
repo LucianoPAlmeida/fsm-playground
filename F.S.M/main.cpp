@@ -29,15 +29,21 @@ public:
 };
 
 class Machine {
-  std::vector<std::unique_ptr<State>> _states;
+  std::unordered_map<size_t, std::unique_ptr<State>> _states;
+  State *_startState{nullptr};
 
 public:
   Machine(const std::unordered_map<size_t, std::unordered_map<char, size_t>>
               &machineStates,
-          const std::unordered_set<size_t> &finalStates) {
-    for (size_t i = 0; i <= 5; ++i) {
-      _states.push_back(std::make_unique<State>(i, bool(finalStates.count(i))));
+          const std::unordered_set<size_t> &finalStates, size_t startState) {
+    for (auto &entry : machineStates) {
+      const auto stateId = entry.first;
+      _states.emplace(stateId, std::make_unique<State>(
+                                   stateId, bool(finalStates.count(stateId))));
     }
+    _startState = _states[startState].get();
+    assert(_startState != nullptr && "Invalid start state");
+
     for (const auto &state : machineStates) {
       auto &stateObj = _states[state.first];
       for (auto &nextStates : state.second) {
@@ -48,7 +54,7 @@ public:
   }
 
   bool accept(const std::string &str) const noexcept {
-    const auto *curState = _states.front().get();
+    const auto *curState = _startState;
     for (const auto ch : str) {
       curState = curState->next(ch);
       if (curState == nullptr)
@@ -71,7 +77,8 @@ static std::unique_ptr<Machine> make01s10sMachine() {
   machineStates.insert({5, {{'1', 5}, {'0', 5}}}); // Dead State
   std::unordered_set<size_t> finalStates = {3, 4};
 
-  return std::make_unique<Machine>(machineStates, finalStates);
+  return std::make_unique<Machine>(machineStates, finalStates,
+                                   /*startState=*/0);
 }
 
 int main(int argc, const char * argv[]) {
@@ -79,6 +86,7 @@ int main(int argc, const char * argv[]) {
   std::cout << std::boolalpha << "001: " << M->accept("001") << std::endl;
   std::cout << std::boolalpha << "100: " << M->accept("100") << std::endl;
   std::cout << std::boolalpha << "1010: " << M->accept("1010") << std::endl;
+  std::cout << std::boolalpha << "0110: " << M->accept("0110") << std::endl;
   std::cout << std::boolalpha << "1: " << M->accept("1") << std::endl;
   std::cout << std::boolalpha << "0: " << M->accept("0") << std::endl;
   std::cout << std::boolalpha << "01: " << M->accept("01") << std::endl;
