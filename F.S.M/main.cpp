@@ -31,10 +31,12 @@ public:
 class Machine {
   std::unordered_map<size_t, std::unique_ptr<State>> _states;
   State *_startState{nullptr};
+  std::unordered_set<const State *> _deadStates;
 
 public:
-  Machine(const std::unordered_map<size_t, std::unordered_map<char, size_t>>
-              &machineStates,
+  using Transitions = std::unordered_map<char, size_t>;
+
+  Machine(const std::unordered_map<size_t, Transitions> &machineStates,
           const std::unordered_set<size_t> &finalStates, size_t startState) {
     for (auto &entry : machineStates) {
       const auto stateId = entry.first;
@@ -46,18 +48,23 @@ public:
 
     for (const auto &state : machineStates) {
       auto &stateObj = _states[state.first];
+      bool isDeadState = true;
       for (auto &nextStates : state.second) {
         const auto &nextStateObj = _states[nextStates.second];
         stateObj->addNext(nextStates.first, nextStateObj.get());
+        isDeadState &= stateObj == nextStateObj;
+      }
+      if (isDeadState) {
+        _deadStates.insert(stateObj.get());
       }
     }
   }
 
   bool accept(const std::string &str) const noexcept {
-    const auto *curState = _startState;
+    auto *curState = _startState;
     for (const auto ch : str) {
       curState = curState->next(ch);
-      if (curState == nullptr)
+      if (curState == nullptr || _deadStates.count(curState))
         return false;
     }
     return curState->isFinalState();
@@ -68,7 +75,7 @@ public:
 // A finite state machine that starts in zeros and ends in ones
 // or starts in ones and ends in zeros
 static std::unique_ptr<Machine> make01s10sMachine() {
-  std::unordered_map<size_t, std::unordered_map<char, size_t>> machineStates;
+  std::unordered_map<size_t, Machine::Transitions> machineStates;
   machineStates.insert({0, {{'0', 1}, {'1', 2}}});
   machineStates.insert({1, {{'0', 1}, {'1', 3}}});
   machineStates.insert({2, {{'1', 2}, {'0', 4}}});
@@ -84,7 +91,7 @@ static std::unique_ptr<Machine> make01s10sMachine() {
 // A finite state machine starts in arbitrary 1's and 0' and ends with one or
 // more zeros
 static std::unique_ptr<Machine> makeEndInZerosMachine() {
-  std::unordered_map<size_t, std::unordered_map<char, size_t>> machineStates;
+  std::unordered_map<size_t, Machine::Transitions> machineStates;
   machineStates.insert({0, {{'0', 1}, {'1', 0}}});
   machineStates.insert({1, {{'0', 1}, {'1', 0}}});
   std::unordered_set<size_t> finalStates = {1};
@@ -94,13 +101,15 @@ static std::unique_ptr<Machine> makeEndInZerosMachine() {
 }
 
 inline void assertAccepted(const Machine &M, const std::string &str) {
-  std::cout << std::boolalpha << str << ": " << M.accept(str) << std::endl;
-  assert(M.accept(str));
+  auto result = M.accept(str);
+  std::cout << std::boolalpha << str << ": " << result << std::endl;
+  assert(result);
 }
 
 inline void assertNotAccepted(const Machine &M, const std::string &str) {
-  std::cout << std::boolalpha << str << ": " << M.accept(str) << std::endl;
-  assert(!M.accept(str));
+  auto result = M.accept(str);
+  std::cout << std::boolalpha << str << ": " << result << std::endl;
+  assert(!result);
 }
 
 int main(int argc, const char * argv[]) {
