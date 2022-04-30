@@ -81,7 +81,6 @@ static std::unique_ptr<Machine> make01s10sMachine() {
                                    /*startState=*/0);
 }
 
-// 01, 10, 001, 110 ... 111110000, 00001111
 // A finite state machine starts in arbitrary 1's and 0' and ends with one or
 // more zeros
 static std::unique_ptr<Machine> makeEndInZerosMachine() {
@@ -94,36 +93,45 @@ static std::unique_ptr<Machine> makeEndInZerosMachine() {
                                    /*startState=*/0);
 }
 
+inline void assertAccepted(const Machine &M, const std::string &str) {
+  std::cout << std::boolalpha << str << ": " << M.accept(str) << std::endl;
+  assert(M.accept(str));
+}
+
+inline void assertNotAccepted(const Machine &M, const std::string &str) {
+  std::cout << std::boolalpha << str << ": " << M.accept(str) << std::endl;
+  assert(!M.accept(str));
+}
+
 int main(int argc, const char * argv[]) {
   {
     auto M = make01s10sMachine();
-    std::cout << std::boolalpha << "001: " << M->accept("001") << std::endl;
-    std::cout << std::boolalpha << "100: " << M->accept("100") << std::endl;
-    std::cout << std::boolalpha << "1010: " << M->accept("1010") << std::endl;
-    std::cout << std::boolalpha << "0110: " << M->accept("0110") << std::endl;
-    std::cout << std::boolalpha << "1: " << M->accept("1") << std::endl;
-    std::cout << std::boolalpha << "0: " << M->accept("0") << std::endl;
-    std::cout << std::boolalpha << "01: " << M->accept("01") << std::endl;
-    std::cout << std::boolalpha << "10: " << M->accept("10") << std::endl;
-    std::cout << std::boolalpha << "111110000: " << M->accept("111110000")
-              << std::endl;
-    std::cout << std::boolalpha << "000011111: " << M->accept("00001111")
-              << std::endl;
+    assertAccepted(*M, "001");
+    assertAccepted(*M, "100");
+    assertAccepted(*M, "001");
+    assertNotAccepted(*M, "1010");
+    assertNotAccepted(*M, "0110");
+    assertNotAccepted(*M, "1");
+    assertNotAccepted(*M, "0");
+    assertAccepted(*M, "01");
+    assertAccepted(*M, "10");
+    assertAccepted(*M, "111110000");
+    assertAccepted(*M, "000011111");
   }
 
   {
     std::cout << "Ends in zeros" << std::endl;
     auto M = makeEndInZerosMachine();
-    std::cout << std::boolalpha << "001: " << M->accept("001") << std::endl;
-    std::cout << std::boolalpha << "100: " << M->accept("100") << std::endl;
-    std::cout << std::boolalpha << "1010: " << M->accept("1010") << std::endl;
-    std::cout << std::boolalpha << "0110: " << M->accept("0110") << std::endl;
-    std::cout << std::boolalpha << "101: " << M->accept("101") << std::endl;
-    std::cout << std::boolalpha << "1000100: " << M->accept("1000100")
-              << std::endl;
-    std::cout << std::boolalpha << "0000: " << M->accept("0000") << std::endl;
-    std::cout << std::boolalpha << "00001: " << M->accept("00001") << std::endl;
-    std::cout << std::boolalpha << "1111: " << M->accept("1111") << std::endl;
+    assertNotAccepted(*M, "001");
+    assertAccepted(*M, "100");
+    assertAccepted(*M, "1010");
+    assertAccepted(*M, "0110");
+    assertNotAccepted(*M, "101");
+    assertAccepted(*M, "1000100");
+    assertAccepted(*M, "0000");
+    assertNotAccepted(*M, "00001");
+    assertNotAccepted(*M, "1111");
   }
+
   return 0;
 }
