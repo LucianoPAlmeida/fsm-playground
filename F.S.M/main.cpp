@@ -119,6 +119,37 @@ static std::unique_ptr<Machine> makeEndInZerosMachine() {
   return machine;
 }
 
+// A finite state machine that contains either ..0100.. or ..0111..
+static std::unique_ptr<Machine> makeContainsEither0100or0111() {
+  Machine::StateSet finalStates = {4, 6};
+  Machine::StateSet q = {0, 1, 2, 3, 4, 5, 6};
+
+  auto machine = std::make_unique<Machine>(q, /*startState=*/0, finalStates);
+
+  machine->addTransition(0, '0', 1);
+  machine->addTransition(0, '1', 0);
+
+  machine->addTransition(1, '0', 1);
+  machine->addTransition(1, '1', 2);
+
+  machine->addTransition(2, '0', 3);
+  machine->addTransition(2, '1', 5);
+
+  machine->addTransition(3, '0', 4);
+  machine->addTransition(3, '1', 2);
+
+  machine->addTransition(4, '0', 4);
+  machine->addTransition(4, '1', 4);
+
+  machine->addTransition(5, '0', 1);
+  machine->addTransition(5, '1', 6);
+
+  machine->addTransition(6, '0', 6);
+  machine->addTransition(6, '1', 6);
+
+  return machine;
+}
+
 inline void assertAccepted(const Machine &M, const std::string &str) {
   auto result = M.accept(str);
   std::cout << std::boolalpha << str << ": " << result << std::endl;
@@ -159,6 +190,19 @@ int main(int argc, const char * argv[]) {
     assertAccepted(*M, "0000");
     assertNotAccepted(*M, "00001");
     assertNotAccepted(*M, "1111");
+  }
+
+  {
+    std::cout << "Either contains 0100 or 0111" << std::endl;
+    auto M = makeContainsEither0100or0111();
+    assertNotAccepted(*M, "001");
+    assertNotAccepted(*M, "00001");
+    assertNotAccepted(*M, "1111");
+    assertAccepted(*M, "0111");
+    assertAccepted(*M, "0100");
+    assertNotAccepted(*M, "101011");
+    assertAccepted(*M, "00110100");
+    assertAccepted(*M, "00110111");
   }
 
   return 0;
