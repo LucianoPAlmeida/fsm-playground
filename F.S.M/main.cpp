@@ -62,12 +62,13 @@ public:
     }
   }
 
-  bool accept(const std::string &str) const noexcept {
+  bool accept(std::string_view str) const noexcept {
     auto *curState = _startState;
     for (const auto ch : str) {
       curState = curState->next(ch);
-      if (curState == nullptr || _deadStates.count(curState))
+      if (curState == nullptr || _deadStates.count(curState)) {
         return false;
+      }
     }
     return curState->isFinalState();
   }
@@ -150,13 +151,13 @@ static std::unique_ptr<Machine> makeContainsEither0100or0111() {
   return machine;
 }
 
-inline void assertAccepted(const Machine &M, const std::string &str) {
+inline void assertAccepted(const Machine &M, std::string_view str) {
   auto result = M.accept(str);
   std::cout << std::boolalpha << str << ": " << result << std::endl;
   assert(result);
 }
 
-inline void assertNotAccepted(const Machine &M, const std::string &str) {
+inline void assertNotAccepted(const Machine &M, std::string_view str) {
   auto result = M.accept(str);
   std::cout << std::boolalpha << str << ": " << result << std::endl;
   assert(!result);
