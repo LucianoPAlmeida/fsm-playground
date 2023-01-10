@@ -196,6 +196,7 @@ int main(int argc, const char * argv[]) {
   {
     std::cout << "Either contains 0100 or 0111" << std::endl;
     auto M = makeContainsEither0100or0111();
+    assertNotAccepted(*M, "01");
     assertNotAccepted(*M, "001");
     assertNotAccepted(*M, "00001");
     assertNotAccepted(*M, "1111");
@@ -204,7 +205,8 @@ int main(int argc, const char * argv[]) {
     assertNotAccepted(*M, "101011");
     assertAccepted(*M, "00110100");
     assertAccepted(*M, "00110111");
+    assertAccepted(*M, "0101001011");
+    assertAccepted(*M, "010101010111010101");
   }
-
   return 0;
 }
