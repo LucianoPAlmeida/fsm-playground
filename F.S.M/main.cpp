@@ -86,13 +86,36 @@ static std::unique_ptr<Machine> makeContainsEither0100or0111() {
   return machine;
 }
 
-inline void assertAccepted(const Machine &M, std::string_view str) {
+// A PDA that recognizes a { 0n 1n | n >= 0 }
+static std::unique_ptr<PDA::Automaton>
+makeStartWithZerosAndEndOnesWithSameCount() {
+  auto start = PDA::State(0);
+  auto s1 = PDA::State(1);
+  auto s2 = PDA::State(2);
+  auto finalState = PDA::State(3);
+  PDA::state_set states{start, s1, s2, finalState};
+  PDA::state_set acceptingStates{finalState};
+  auto e = PDA::Symbol::epsilon();
+
+  auto automaton =
+      std::make_unique<PDA::Automaton>(start, states, acceptingStates);
+  automaton->addTransition(start, s1, e, e, {'$'});         // ⍷, ⍷ -> $
+  automaton->addTransition(s1, s1, {'0'}, e, {'0'});        // 0, ⍷ -> 0
+  automaton->addTransition(s1, s2, e, e, e);                // ⍷, ⍷ -> ⍷
+  automaton->addTransition(s2, s2, {'1'}, {'0'}, e);        // 1, 0 -> ⍷
+  automaton->addTransition(s2, finalState, e, {'$'}, e);    // ⍷, $ -> ⍷
+  return automaton;
+}
+
+template <class StateMachine>
+inline void assertAccepted(const StateMachine &M, std::string_view str) {
   auto result = M.accept(str);
   std::cout << std::boolalpha << str << ": " << result << std::endl;
   assert(result);
 }
 
-inline void assertNotAccepted(const Machine &M, std::string_view str) {
+template <class StateMachine>
+inline void assertNotAccepted(const StateMachine &M, std::string_view str) {
   auto result = M.accept(str);
   std::cout << std::boolalpha << str << ": " << result << std::endl;
   assert(!result);
@@ -142,6 +165,27 @@ int main(int argc, const char * argv[]) {
     assertAccepted(*M, "00110111");
     assertAccepted(*M, "0101001011");
     assertAccepted(*M, "010101010111010101");
+  }
+
+  // PDA
+  {
+    auto A = makeStartWithZerosAndEndOnesWithSameCount();
+
+    assertNotAccepted(*A, "001");
+    assertNotAccepted(*A, "00011");
+    assertNotAccepted(*A, "00011");
+    assertNotAccepted(*A, "10");
+    assertNotAccepted(*A, "0110");
+    assertNotAccepted(*A, "0111");
+    assertNotAccepted(*A, "0");
+    assertNotAccepted(*A, "00001110");
+    assertNotAccepted(*A, "000010111");
+
+    assertAccepted(*A, "");
+    assertAccepted(*A, "01");
+    assertAccepted(*A, "0011");
+    assertAccepted(*A, "000111");
+    assertAccepted(*A, "00001111");
   }
   return 0;
 }
