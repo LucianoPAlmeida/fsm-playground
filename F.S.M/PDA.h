@@ -20,9 +20,9 @@ struct symbol_hash;
 
 class State {
 protected:
-  int _id;
-
   friend state_hash;
+
+  int _id;
 
 public:
   State(int id) : _id(id) {}
@@ -39,9 +39,9 @@ using state_set = std::unordered_set<State, state_hash>;
 
 class Symbol {
 protected:
-  char _ch;
-
   friend symbol_hash;
+
+  char _ch;
 
 public:
   Symbol(char ch) : _ch(ch) {}
@@ -81,10 +81,10 @@ public:
   inline State getToState() const noexcept { return _toState; }
 };
 
-using transitions = std::vector<Transition>;
-class TransitionList {
-  transitions _transitions;
-  transitions _epsilonTransitions;
+using transition_list = std::vector<Transition>;
+class StateTransitions {
+  transition_list _transitions;
+  transition_list _epsilonTransitions;
 
 public:
   void add(const Transition transition) {
@@ -95,9 +95,11 @@ public:
     }
   }
 
-  const transitions &getTransitions() const noexcept { return _transitions; }
+  const transition_list &getTransitions() const noexcept {
+    return _transitions;
+  }
 
-  const transitions &getEpsilonTransitions() const noexcept {
+  const transition_list &getEpsilonTransitions() const noexcept {
     return _epsilonTransitions;
   }
 };
@@ -108,7 +110,7 @@ private:
   state_set _states;
   state_set _acceptingStates;
 
-  std::unordered_map<State, TransitionList, state_hash> _transitions;
+  std::unordered_map<State, StateTransitions, state_hash> _transitions;
 
   bool isAccepting(State s) const noexcept {
     return bool(_acceptingStates.count(s));
@@ -162,7 +164,7 @@ private:
     auto &[a, stateTransitions] = *it;
 
     auto attemptTakeTransitions = [this, &stack, &s,
-                                   i](const transitions &transitions) {
+                                   i](const transition_list &transitions) {
       for (const auto &symbolTransition : transitions) {
         if (!canTakeTransition(s, stack, i, symbolTransition)) {
           continue;

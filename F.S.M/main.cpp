@@ -180,6 +180,7 @@ int main(int argc, const char * argv[]) {
     assertNotAccepted(*A, "0");
     assertNotAccepted(*A, "00001110");
     assertNotAccepted(*A, "000010111");
+    assertNotAccepted(*A, "000001111");
 
     assertAccepted(*A, "");
     assertAccepted(*A, "01");
