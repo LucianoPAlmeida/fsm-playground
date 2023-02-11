@@ -117,6 +117,7 @@ private:
   }
 
 public:
+  // Implementation of Push Down Automaton (PDA)
   Automaton(State start, state_set states, state_set acceptingStates)
       : _start(start), _states(states), _acceptingStates(acceptingStates) {
     for (auto state : states) {
@@ -126,8 +127,7 @@ public:
 
   void addTransition(State fromState, State toState, Symbol input, Symbol top,
                      Symbol push) {
-    const auto transition = Transition(input, top, push, toState);
-    _transitions[fromState].add(transition);
+    _transitions[fromState].add({input, top, push, toState});
   }
 
   bool accept(std::string_view input) const {
@@ -137,12 +137,13 @@ public:
   }
 
 private:
-  static bool canTakeTransition(std::string_view s, std::stack<Symbol> &stack,
-                                size_t i, Transition symbolTransition) {
-    const auto input = symbolTransition.getInput();
+  static bool canTakeTransition(std::string_view input,
+                                std::stack<Symbol> &stack, size_t i,
+                                Transition symbolTransition) {
+    const auto inputSymbol = symbolTransition.getInput();
     const auto top = symbolTransition.getTop();
 
-    if (!input.isEpsilon() && !input.is(s[i])) {
+    if (!inputSymbol.isEpsilon() && !inputSymbol.is(input[i])) {
       return false;
     }
 
@@ -156,17 +157,17 @@ private:
     return true;
   }
 
-  bool acceptImpl(std::string_view s, std::stack<Symbol> &stack,
+  bool acceptImpl(std::string_view input, std::stack<Symbol> &stack,
                   State currentState, size_t i) const {
     auto it = _transitions.find(currentState);
     assert(it != _transitions.end() &&
            "All states are expected to have transitons even if empty");
     auto &[a, stateTransitions] = *it;
 
-    auto attemptTakeTransitions = [this, &stack, &s,
+    auto attemptTakeTransitions = [this, &stack, &input,
                                    i](const transition_list &transitions) {
       for (const auto &symbolTransition : transitions) {
-        if (!canTakeTransition(s, stack, i, symbolTransition)) {
+        if (!canTakeTransition(input, stack, i, symbolTransition)) {
           continue;
         }
 
@@ -185,14 +186,14 @@ private:
 
         // Because of undeterminism we have to attempt all possible transitions
         // for each state.
-        const auto input = symbolTransition.getInput();
+        const auto inputSymbol = symbolTransition.getInput();
         const auto toState = symbolTransition.getToState();
-        auto nextI = input.isEpsilon() ? i : i + 1;
-        if (acceptImpl(s, stack, toState, nextI)) {
+        auto nextI = inputSymbol.isEpsilon() ? i : i + 1;
+        if (acceptImpl(input, stack, toState, nextI)) {
           return true;
         }
 
-        // Restore the stack state if that transition is not fail.
+        // Restore the stack state if that transition is not accepted.
         if (!toPush.isEpsilon()) {
           assert(stack.top() == toPush && "Not the last pushed to stack?");
           stack.pop();
@@ -215,7 +216,7 @@ private:
     }
     
     // Is only accepted if is in a final state after scanning whole input.
-    return isAccepting(currentState) && i >= s.size();
+    return isAccepting(currentState) && i >= input.size();
   }
 };
 } // namespace PDA
