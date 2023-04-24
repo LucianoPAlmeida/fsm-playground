@@ -13,8 +13,8 @@
 // A finite state machine that starts in zeros and ends in ones
 // or starts in ones and ends in zeros
 static std::unique_ptr<Machine> make01s10sMachine() {
-  Machine::StateSet finalStates = {3, 4};
-  Machine::StateSet q = {0, 1, 2, 3, 4, 5};
+  Machine::state_set finalStates = {3, 4};
+  Machine::state_set q = {0, 1, 2, 3, 4, 5};
 
   auto machine = std::make_unique<Machine>(q, /*startState=*/0, finalStates);
   machine->addTransition(0, '0', 1);
@@ -42,8 +42,8 @@ static std::unique_ptr<Machine> make01s10sMachine() {
 // A finite state machine starts in arbitrary 1's and 0' and ends with one or
 // more zeros
 static std::unique_ptr<Machine> makeEndInZerosMachine() {
-  Machine::StateSet finalStates = {1};
-  Machine::StateSet q = {0, 1};
+  Machine::state_set finalStates = {1};
+  Machine::state_set q = {0, 1};
 
   auto machine = std::make_unique<Machine>(q, /*startState=*/0, finalStates);
   machine->addTransition(0, '0', 1);
@@ -57,8 +57,8 @@ static std::unique_ptr<Machine> makeEndInZerosMachine() {
 
 // A finite state machine that contains either ..0100.. or ..0111..
 static std::unique_ptr<Machine> makeContainsEither0100or0111() {
-  Machine::StateSet finalStates = {4, 6};
-  Machine::StateSet q = {0, 1, 2, 3, 4, 5, 6};
+  Machine::state_set finalStates = {4, 6};
+  Machine::state_set q = {0, 1, 2, 3, 4, 5, 6};
 
   auto machine = std::make_unique<Machine>(q, /*startState=*/0, finalStates);
 
