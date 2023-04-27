@@ -214,7 +214,7 @@ private:
     if (attemptTakeTransitions(stateTransitions.getEpsilonTransitions())) {
       return true;
     }
-    
+
     // Is only accepted if is in a final state after scanning whole input.
     return isAccepting(currentState) && i >= input.size();
   }
