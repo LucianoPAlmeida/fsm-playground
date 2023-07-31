@@ -7,6 +7,7 @@
 
 #include "FSM.h"
 #include "PDA.h"
+#include "regex-matcher.h"
 #include <iostream>
 
 // 01, 10, 001, 110 ... 111110000, 00001111
@@ -100,7 +101,7 @@ static std::unique_ptr<Machine> makeContainsAbc() {
   machine->addTransition(2, 'a', 2);
   machine->addTransition(2, 'b', 3);
   machine->addTransition(2, 'c', 1);
-  
+
   machine->addTransition(3, 'a', 2);
   machine->addTransition(3, 'b', 1);
   machine->addTransition(3, 'c', 4);
@@ -192,7 +193,7 @@ int main(int argc, const char * argv[]) {
     assertAccepted(*M, "0101001011");
     assertAccepted(*M, "010101010111010101");
   }
-  
+
   {
     std::cout << "Contains abc" << std::endl;
     auto M = makeContainsAbc();
