@@ -86,6 +86,32 @@ static std::unique_ptr<Machine> makeContainsEither0100or0111() {
   return machine;
 }
 
+// A finite state machine that contains either ..abc..
+static std::unique_ptr<Machine> makeContainsAbc() {
+  Machine::state_set finalStates = {4};
+  Machine::state_set q = {1, 2, 3, 4};
+
+  auto machine = std::make_unique<Machine>(q, /*startState=*/1, finalStates);
+
+  machine->addTransition(1, 'a', 2);
+  machine->addTransition(1, 'b', 1);
+  machine->addTransition(1, 'c', 1);
+
+  machine->addTransition(2, 'a', 2);
+  machine->addTransition(2, 'b', 3);
+  machine->addTransition(2, 'c', 1);
+  
+  machine->addTransition(3, 'a', 2);
+  machine->addTransition(3, 'b', 1);
+  machine->addTransition(3, 'c', 4);
+
+  machine->addTransition(4, 'a', 4);
+  machine->addTransition(4, 'b', 4);
+  machine->addTransition(4, 'c', 4);
+
+  return machine;
+}
+
 // A PDA that recognizes a { 0n 1n | n >= 0 }
 static std::unique_ptr<PDA::Automaton>
 makeStartWithZerosAndEndOnesWithSameCount() {
@@ -165,6 +191,13 @@ int main(int argc, const char * argv[]) {
     assertAccepted(*M, "00110111");
     assertAccepted(*M, "0101001011");
     assertAccepted(*M, "010101010111010101");
+  }
+  
+  {
+    std::cout << "Contains abc" << std::endl;
+    auto M = makeContainsAbc();
+    assertNotAccepted(*M, "aabac");
+    assertAccepted(*M, "aacbabca");
   }
 
   // PDA
