@@ -232,7 +232,7 @@ private:
 
 class Solution {
 public:
-  bool isMatch(string s, string p) {
+  bool isMatch(std::string s, std::string p) {
     auto parser = PatternParser(std::move(p));
     auto SM = NFA(parser);
     return SM.accept(s);
