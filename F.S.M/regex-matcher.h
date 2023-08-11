@@ -198,7 +198,9 @@ private:
 
     auto attemptNext = [this, &rejectedStates, &input, &idx](size_t next) {
       // Memoization of attempted and rejected states for a given input
-      // position and a next state.
+      // position and a next state. Is like a graph, if we did already
+      // traverse that path for a given point and know that it isn't
+      // accepted we don't need to go again.
       auto attempt = std::make_pair(next, idx + 1);
       if (rejectedStates.count(attempt))
         return false;
@@ -211,17 +213,17 @@ private:
       return false;
     };
 
+
     // Attempt each possible transition to account for non-determinism.
+    
     // Transitions for specific any symbol ".".
     for (size_t next : curStateTransitions['.']) {
       if (attemptNext(next))
         return true;
     }
 
-    const auto &symbolTranstions = curStateTransitions[inputChar];
-    // Attempt each possible transition to account for non-determinism.
     // Transitions for specific input symbol.
-    for (size_t next : symbolTranstions) {
+    for (size_t next : curStateTransitions[inputChar]) {
       if (attemptNext(next))
         return true;
     }
