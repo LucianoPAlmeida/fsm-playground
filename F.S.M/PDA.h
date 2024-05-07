@@ -8,6 +8,7 @@
 #ifndef PDA_h
 #define PDA_h
 
+#include <cassert>
 #include <set>
 #include <stack>
 #include <utility>

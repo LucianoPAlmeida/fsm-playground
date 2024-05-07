@@ -33,13 +33,6 @@ public:
   bool isZeroOrMore() const noexcept { return mZeroOrMore; }
 };
 
-void dump(std::vector<Token> &tokens) {
-  for (auto tk : tokens) {
-    std::cout << "{" << tk.getValue() << ", " << tk.isZeroOrMore() << "} ";
-  }
-  std::cout << std::endl;
-}
-
 class PatternParser {
   std::string mPattern;
   size_t cur = 0;
@@ -161,7 +154,7 @@ public:
     }
   }
 
-  bool accept(const std::string &input) {
+  bool accept(std::string_view input) {
     state_attempt_set rejectedStates;
     return acceptImpl(input, mStartState, 0, rejectedStates);
   }
@@ -185,7 +178,7 @@ public:
   }
 
 private:
-  bool acceptImpl(const std::string &input, size_t curState, size_t idx,
+  bool acceptImpl(std::string_view input, size_t curState, size_t idx,
                   state_attempt_set &rejectedStates) {
     // We read all input string.
     if (idx == input.size()) {
@@ -234,7 +227,7 @@ private:
 
 class Solution {
 public:
-  bool isMatch(std::string s, std::string p) {
+  bool isMatch(const std::string &s, std::string p) {
     auto parser = PatternParser(std::move(p));
     auto SM = NFA(parser);
     return SM.accept(s);

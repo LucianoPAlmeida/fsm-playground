@@ -27,6 +27,7 @@
 		B25C6091297B84BC0070935F /* PDA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDA.h; sourceTree = "<group>"; };
 		B2835F742812431000387B95 /* F.S.M */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = F.S.M; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2835F772812431000387B95 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B2A5D6772A77DE8B00BD7959 /* regex-matcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "regex-matcher.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +63,7 @@
 				B25C6090297B84560070935F /* FSM.h */,
 				B2835F772812431000387B95 /* main.cpp */,
 				B25C6091297B84BC0070935F /* PDA.h */,
+				B2A5D6772A77DE8B00BD7959 /* regex-matcher.h */,
 			);
 			path = F.S.M;
 			sourceTree = "<group>";

@@ -8,6 +8,7 @@
 #ifndef FSM_h
 #define FSM_h
 
+#include <cassert>
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
